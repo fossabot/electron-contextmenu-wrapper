@@ -1,8 +1,5 @@
-import ContextMenuBuilder from './context-menu-builder';
-import ContextMenuListener from './context-menu-listener';
-import DictionarySync from './dictionary-sync';
-import SpellCheckHandler from './spell-check-handler';
-import SpellChecker from './node-spellchecker';
+const ContextMenuBuilder = require('./context-menu-builder');
+const ContextMenuListener = require('./context-menu-listener');
 
 /**
  * Overrides the default logging function (the `debug` library) with another
@@ -12,7 +9,7 @@ import SpellChecker from './node-spellchecker';
  *                          information to.
  */
 function setGlobalLogger(fn) {
-  for (let klass of [ContextMenuBuilder, ContextMenuListener, DictionarySync, SpellCheckHandler]) {
+  for (let klass of [ContextMenuBuilder, ContextMenuListener]) {
     klass.setLogger(fn);
   }
 }
@@ -20,8 +17,5 @@ function setGlobalLogger(fn) {
 module.exports = {
   ContextMenuBuilder,
   ContextMenuListener,
-  DictionarySync,
-  SpellCheckHandler,
-  SpellChecker,
   setGlobalLogger,
 };
