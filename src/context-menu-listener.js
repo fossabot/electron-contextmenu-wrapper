@@ -1,19 +1,14 @@
-import {remote} from 'electron';
-import { Observable } from 'rxjs/Observable';
-import { Subscription } from 'rxjs/Subscription';
-import { fromRemoteWindow } from 'electron-remote';
+const {remote} = require('electron');
 
-import 'rxjs/add/observable/fromEvent';
-import 'rxjs/add/operator/map';
 
-let d = require('debug')('electron-spellchecker:context-menu-listener');
+let d = require('debug')('electron-contextmenu-handler:context-menu-listener');
 
 /**
  * ContextMenuListener will listen to the given window / WebView control and
  * invoke a handler function. This function usually will immediately turn around
  * and invoke {{showPopupMenu}} from {{ContextMenuBuilder}}.
  */
-export default class ContextMenuListener {
+class ContextMenuListener {
   /**
    * Constructs a ContextMenuListener and wires up the events it needs to fire
    * the callback.
@@ -22,18 +17,12 @@ export default class ContextMenuListener {
    *                                        with the 'context-menu' info.
    * @param  {BrowserWindow|WebView} windowOrWebView  The target, either a
    *                                                  BrowserWindow or a WebView
-   * @param  {Observable<Object>} contextMenuEvent  Use this for simulating a
-   *                                                ContextMenu event
    */
-  constructor(handler, windowOrWebView=null, contextMenuEvent=null) {
-    this.sub = new Subscription();
+  constructor(handler, windowOrWebView=null) {
+    this.windowOrWebView = windowOrWebView || remote.getCurrentWebContents();
+    this.handler = handler;
 
-    if (!contextMenuEvent) {
-      windowOrWebView = windowOrWebView || remote.getCurrentWebContents();
-      contextMenuEvent = fromRemoteWindow(windowOrWebView, 'context-menu', true).map(([x]) => x[1]);
-    }
-
-    this.sub.add(contextMenuEvent.subscribe(handler));
+    this.windowOrWebView.on('context-menu', this.handler);
   }
 
   /**
@@ -50,6 +39,9 @@ export default class ContextMenuListener {
    * Disconnect the events that we connected in the Constructor
    */
   unsubscribe() {
-    this.sub.unsubscribe();
+    this.windowOrWebView.removeListener('context-menu', this.handler);
+
   }
 }
+
+module.exports = ContextMenuListener;
